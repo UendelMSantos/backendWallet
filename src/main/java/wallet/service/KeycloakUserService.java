@@ -6,7 +6,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wallet.config.KeycloakProperties;
-import wallet.dto.User;
+import wallet.dto.userDTO;
 
 import java.util.*;
 
@@ -18,9 +18,6 @@ public class KeycloakUserService {
 
     @Autowired
     private KeycloakProperties props;
-
-    @Autowired
-    private AccountService accountService;
 
     public void createUser(String username, String email, String firstName, String lastName, String password) {
         String token = authService.getAccessToken();
@@ -56,13 +53,9 @@ public class KeycloakUserService {
             throw new RuntimeException("Erro ao criar usuário: " + response.getBody());
         }
 
-        String userId = getUserIdByUsername(username);
-        accountService.createAccount(userId);
-
-
     }
 
-    public String getUserIdByUsername(String username) {
+    public userDTO getUserByUsername(String username) {
         String token = authService.getAccessToken();
 
         HttpHeaders headers = new HttpHeaders();
@@ -73,10 +66,10 @@ public class KeycloakUserService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<User[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, User[].class);
+        ResponseEntity<userDTO[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, userDTO[].class);
 
-        if (response.getBody() != null && response.getBody().length > 0) {
-            return response.getBody()[0].getId();
+        if (response.getBody() != null) {
+            return response.getBody()[0];
         } else {
             throw new RuntimeException("Usuário não encontrado no Keycloak");
         }
