@@ -2,37 +2,73 @@ package wallet.service;
 
 import org.springframework.stereotype.Service;
 import wallet.dto.TransactionDTO;
+import wallet.dto.TransactionResponseDTO;
 import wallet.dto.userDTO;
-import wallet.entities.Account;
+import wallet.entities.Transaction;
 import wallet.repository.TransactionRepository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TransactionService {
+    private final KeycloakUserService keycloakUserService;
     private TransactionRepository repository;
-    private AccountService accountService;
+
+
     public TransactionService(
             TransactionRepository repository,
-            AccountService accountService
-    ) {
+            KeycloakUserService keycloakUserService) {
         this.repository = repository;
-        this.accountService = accountService;
+        this.keycloakUserService = keycloakUserService;
     }
 
-//    public String createTransaction(TransactionDTO transaction) {
-//        userDTO senderUser = verifyUser(transaction.getSenderCPF());
-//        userDTO receiverUser = verifyUser(transaction.getReceiverCPF());
-//
-//        Account senderAccount = accountService.findAccountByUserId(senderUser.getId());
-//        Account receiverAccount = accountService.findAccountByUserId(receiverUser.getId());
-//
-//        return null;
-//    }
-//
-//    public userDTO verifyUser(String userCPF){
-//        userDTO user = keycloakUserService.getUserByUsername(userCPF);
-//        if(user == null) {
-//            System.out.println("user is null");
-//        }
-//        return user;
-//    }
+    public void saveTransaction(Transaction transaction) {
+       repository.save(transaction);
+    }
+
+    public List<TransactionResponseDTO> findTransactionsByUserAndPeriod(String userName, LocalDate inicio, LocalDate fim) {
+        LocalDateTime inicioDateTime = (inicio != null) ? inicio.atStartOfDay() : null;
+        LocalDateTime fimDateTime = (fim != null) ? fim.plusDays(1).atStartOfDay() : null;
+
+        userDTO userTransaction = keycloakUserService.getUserByUsername(userName);
+
+        List<Transaction> transactionsResponse;
+
+        if (inicioDateTime == null && fimDateTime == null) {
+            transactionsResponse = repository.findBySenderIdOrReceiverId(userTransaction.getId());
+        } else if (inicioDateTime != null && fimDateTime != null) {
+            transactionsResponse = repository.findBySenderIdOrReceiverIdAndTimestampBetween(
+                    userTransaction.getId(), inicioDateTime, fimDateTime);
+        } else if (inicioDateTime != null) {
+            transactionsResponse = repository.findBySenderIdOrReceiverIdAndTimestampAfter(
+                    userTransaction.getId(), inicioDateTime);
+        } else {
+            transactionsResponse = repository.findBySenderIdOrReceiverIdAndTimestampBefore(
+                    userTransaction.getId(), fimDateTime);
+        }
+
+        // Mapeando para DTO
+        List<TransactionResponseDTO> transactionDTOs = new ArrayList<>();
+        for (Transaction transaction : transactionsResponse) {
+            String senderName = keycloakUserService.getFirstNameById(UUID.fromString(transaction.getSenderId()));
+            String receiverName = keycloakUserService.getFirstNameById(UUID.fromString(transaction.getReceiverId()));
+            TransactionResponseDTO dto = new TransactionResponseDTO(
+                    transaction.getId(),
+                    transaction.getSenderId(),
+                    transaction.getReceiverId(),
+                    transaction.getValue(),
+                    senderName,
+                    receiverName
+
+            );
+            transactionDTOs.add(dto);
+        }
+
+        return transactionDTOs;
+    }
+
 }

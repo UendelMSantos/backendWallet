@@ -6,5 +6,13 @@ import lombok.Data;
 public class TransactionDTO {
     public String senderCPF;
     public String receiverCPF;
-    public String value;
+    public long value;
+
+    public TransactionDTO() {}
+
+    public TransactionDTO(String senderId, String receiverId, long value) {
+        this.senderCPF = senderId;
+        this.receiverCPF = receiverId;
+        this.value = value;
+    }
 }

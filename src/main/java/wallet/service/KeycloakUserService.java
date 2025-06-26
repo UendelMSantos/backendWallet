@@ -62,7 +62,7 @@ public class KeycloakUserService {
         headers.setBearerAuth(token);
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
-        String url = props.getAuthServerUrl() + "/admin/realms/" + props.getRealm() + "/users?username=" + username;
+        String url = props.getAuthServerUrl() + "/admin/realms/" + props.getRealm() + "/users?username=" + username + "&exact=true";
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -70,6 +70,26 @@ public class KeycloakUserService {
 
         if (response.getBody() != null) {
             return response.getBody()[0];
+        } else {
+            throw new RuntimeException("Usuário não encontrado no Keycloak");
+        }
+    }
+
+    public String getFirstNameById(UUID id) {
+        String token = authService.getAccessToken();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+
+        String url = props.getAuthServerUrl() + "/admin/realms/" + props.getRealm() + "/users/" + id;
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<userDTO> response = restTemplate.exchange(url, HttpMethod.GET, entity, userDTO.class);
+
+        if (response != null && response.getBody() != null) {
+            return response.getBody().getFirstName();
         } else {
             throw new RuntimeException("Usuário não encontrado no Keycloak");
         }
