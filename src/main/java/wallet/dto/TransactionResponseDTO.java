@@ -1,9 +1,11 @@
 package wallet.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -13,15 +15,21 @@ public class TransactionResponseDTO {
     public String receiverId;
     public String senderName;
     public String receiverName;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm", timezone = "America/Fortaleza")
+    public LocalDateTime sentDate;
+
     public long value;
 
-    public TransactionResponseDTO(UUID transactionId, String senderId, String receiverId, long value, String senderName, String receiverName) {
+
+    public TransactionResponseDTO(UUID transactionId, String senderId, String receiverId, long value, String senderName, String receiverName, LocalDateTime sentDate) {
         this.transactionId = transactionId;
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.value = value;
         this.senderName = senderName;
         this.receiverName = receiverName;
+        this.sentDate = sentDate;
     }
 
     public String getSenderId() {
@@ -70,5 +78,13 @@ public class TransactionResponseDTO {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
+    }
+
+    public LocalDateTime getSentDate() {
+        return sentDate;
+    }
+
+    public void setSentDate(LocalDateTime sentDate) {
+        this.sentDate = sentDate;
     }
 }

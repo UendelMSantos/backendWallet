@@ -55,6 +55,10 @@ public class AccountService {
             throw new IllegalArgumentException("Conta não encontrada para o usuário: " + receiverUser.firstName);
         }
 
+        if (senderAccount.getBalance() < transaction.getValue()) {
+            throw new IllegalArgumentException("O remetente não tem valor Suficiente para a transação");
+        }
+
         senderAccount.setBalance(senderAccount.getBalance() - transaction.getValue());
         accountRepository.save(senderAccount);
         receiverAccount.setBalance(receiverAccount.getBalance() + transaction.getValue());

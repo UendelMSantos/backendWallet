@@ -51,9 +51,13 @@ public class TransactionService {
                     userTransaction.getId(), fimDateTime);
         }
 
-        // Mapeando para DTO
+        List<TransactionResponseDTO> transactionDTOs = this.convertTransactionsToDTO(transactionsResponse);
+        return transactionDTOs;
+    }
+
+    public List<TransactionResponseDTO> convertTransactionsToDTO(List<Transaction> transactions) {
         List<TransactionResponseDTO> transactionDTOs = new ArrayList<>();
-        for (Transaction transaction : transactionsResponse) {
+        for (Transaction transaction : transactions) {
             String senderName = keycloakUserService.getFirstNameById(UUID.fromString(transaction.getSenderId()));
             String receiverName = keycloakUserService.getFirstNameById(UUID.fromString(transaction.getReceiverId()));
             TransactionResponseDTO dto = new TransactionResponseDTO(
@@ -62,12 +66,11 @@ public class TransactionService {
                     transaction.getReceiverId(),
                     transaction.getValue(),
                     senderName,
-                    receiverName
-
+                    receiverName,
+                    transaction.getTimestamp()
             );
             transactionDTOs.add(dto);
         }
-
         return transactionDTOs;
     }
 
