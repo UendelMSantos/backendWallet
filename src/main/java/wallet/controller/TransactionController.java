@@ -2,6 +2,7 @@ package wallet.controller;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import wallet.dto.MoneyDepositDTO;
 import wallet.dto.TransactionDTO;
@@ -58,5 +59,6 @@ public class TransactionController {
 
         return ResponseEntity.ok(transacoes);
     }
+
 
 }
