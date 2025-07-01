@@ -28,7 +28,6 @@ public class KeycloakLoginService {
         body.add("username", loginRequest.username);
         body.add("password", loginRequest.password);
 
-        // Só se client for confidential:
         if (props.getClientSecret() != null) {
             body.add("client_secret", props.getClientSecret());
         }

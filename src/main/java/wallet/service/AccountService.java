@@ -8,13 +8,12 @@ import wallet.entities.Account;
 import wallet.entities.Transaction;
 import wallet.repository.AccountRepository;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Random;
 
 
 @Service
 public class AccountService {
+
     private final AccountRepository accountRepository;
     private final KeycloakUserService keycloakUserService;
     private final TransactionService transactionService;
@@ -98,6 +97,6 @@ public class AccountService {
     }
 
     public Account findAccountByUserId(String userId) {
-        return accountRepository.findByUserId(userId);
+        return accountRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("O id é inválido"));
     }
 }

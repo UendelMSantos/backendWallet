@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AccountRepository extends JpaRepository<Account, UUID> {
-    Account findByUserId(String userId);
+
+    Optional<Account> findByUserId(String userId);
     Account findByAccountNumber(String accountNumber);
 }
